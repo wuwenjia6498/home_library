@@ -73,12 +73,15 @@
 @keyframes scan-line {
   0% {
     top: 0;
+    opacity: 0.8;
   }
   50% {
     top: calc(100% - 3px);
+    opacity: 1;
   }
   100% {
     top: 0;
+    opacity: 0.8;
   }
 }
 
@@ -90,10 +93,11 @@
   background: linear-gradient(
     to bottom,
     transparent,
-    rgba(255, 0, 0, 0.8),
+    rgba(255, 0, 0, 0.9),
     transparent
   );
-  box-shadow: 0 0 10px rgba(255, 0, 0, 0.6);
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.8),
+              0 0 30px rgba(255, 0, 0, 0.6);
   animation: scan-line 2s ease-in-out infinite;
   z-index: 10;
   pointer-events: none;
