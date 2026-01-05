@@ -68,3 +68,33 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* ISBN 扫描器激光线动画 */
+@keyframes scan-line {
+  0% {
+    top: 0;
+  }
+  50% {
+    top: calc(100% - 3px);
+  }
+  100% {
+    top: 0;
+  }
+}
+
+.scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(255, 0, 0, 0.8),
+    transparent
+  );
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.6);
+  animation: scan-line 2s ease-in-out infinite;
+  z-index: 10;
+  pointer-events: none;
+}
