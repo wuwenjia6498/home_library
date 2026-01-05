@@ -6,7 +6,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react'
-import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode'
+import { Html5Qrcode } from 'html5-qrcode'
 
 interface ISBNScannerProps {
   onScan: (isbn: string) => void
@@ -78,11 +78,6 @@ export function ISBNScanner({ onScan, isProcessing = false }: ISBNScannerProps) 
             fps: 10, // 每秒扫描 10 帧
             qrbox: { width: 280, height: 180 }, // 扫描框大小（长方形适合条形码）
             aspectRatio: 1.777, // 16:9 适合高分辨率
-            // 强制使用 EAN 格式（ISBN 条形码格式）
-            formatsToSupport: [
-              Html5QrcodeSupportedFormats.EAN_13,
-              Html5QrcodeSupportedFormats.EAN_8,
-            ],
           },
           (decodedText) => {
             // 成功扫描回调
