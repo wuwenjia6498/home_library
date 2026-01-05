@@ -62,7 +62,7 @@ export const useScanQueue = create<ScanQueueState>()(
           return
         }
 
-        set(state => ({
+        set((state: ScanQueueState) => ({
           queue: [
             ...state.queue,
             {
@@ -82,7 +82,7 @@ export const useScanQueue = create<ScanQueueState>()(
 
       // 从队列中移除
       removeFromQueue: (isbn: string) => {
-        set(state => ({
+        set((state: ScanQueueState) => ({
           queue: state.queue.filter(item => item.isbn !== isbn)
         }))
       },
@@ -159,7 +159,7 @@ export const useScanQueue = create<ScanQueueState>()(
  * 以 1.5 秒间隔依次处理队列中的 ISBN
  */
 async function processQueue(
-  set: (partial: Partial<ScanQueueState>) => void,
+  set: (partial: Partial<ScanQueueState> | ((state: ScanQueueState) => Partial<ScanQueueState>)) => void,
   get: () => ScanQueueState
 ) {
   while (true) {
@@ -181,7 +181,7 @@ async function processQueue(
     }
 
     // 标记为处理中
-    set(state => ({
+    set((state: ScanQueueState) => ({
       queue: state.queue.map(item =>
         item.isbn === pendingItem.isbn
           ? { ...item, status: 'processing' as const }
@@ -195,7 +195,7 @@ async function processQueue(
       const result = await handleBookEntry(pendingItem.isbn)
 
       // 更新结果
-      set(state => ({
+      set((state: ScanQueueState) => ({
         queue: state.queue.map(item =>
           item.isbn === pendingItem.isbn
             ? {
@@ -213,7 +213,7 @@ async function processQueue(
       // 如果成功，1秒后从队列中移除
       if (result.success) {
         setTimeout(() => {
-          set(state => ({
+          set((state: ScanQueueState) => ({
             queue: state.queue.filter(item => item.isbn !== pendingItem.isbn)
           }))
         }, 1000)
@@ -222,7 +222,7 @@ async function processQueue(
       console.error('处理队列项目失败:', error)
 
       // 标记为失败
-      set(state => ({
+      set((state: ScanQueueState) => ({
         queue: state.queue.map(item =>
           item.isbn === pendingItem.isbn
             ? {
