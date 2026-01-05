@@ -26,23 +26,34 @@ export function ISBNScanner({ onScan, isProcessing = false }: ISBNScannerProps) 
   // 确保组件已在客户端挂载
   useEffect(() => {
     setIsMounted(true)
+    console.log('ISBNScanner 组件已挂载')
 
     // 检测是否为 HTTPS 环境
     if (typeof window !== 'undefined') {
       const isSecure = window.location.protocol === 'https:' || window.location.hostname === 'localhost'
+      console.log('环境检测:', {
+        protocol: window.location.protocol,
+        hostname: window.location.hostname,
+        isSecure
+      })
       setIsHttps(isSecure)
 
       if (!isSecure) {
+        console.error('❌ 非安全环境，摄像头无法使用')
         setError('⚠️ 由于安全限制，摄像头功能需要在 HTTPS 环境下使用。本地测试请使用 localhost 或配置 HTTPS。')
       }
     }
   }, [])
 
   useEffect(() => {
-    if (!isMounted || !isHttps || isInitializingRef.current) return
+    if (!isMounted || !isHttps || isInitializingRef.current) {
+      console.log('跳过扫描器初始化:', { isMounted, isHttps, isInitializing: isInitializingRef.current })
+      return
+    }
 
     const initScanner = async () => {
       isInitializingRef.current = true
+      console.log('🎥 开始初始化扫描器...')
 
       try {
         // 检查是否已有实例在运行
@@ -58,10 +69,20 @@ export function ISBNScanner({ onScan, isProcessing = false }: ISBNScannerProps) 
         }
 
         // 创建新的扫描器实例
+        console.log('创建新的 Html5Qrcode 实例...')
         const scanner = new Html5Qrcode('qr-reader')
         scannerRef.current = scanner
 
         console.log('正在启动扫描器...')
+        console.log('请求摄像头配置:', {
+          facingMode: 'environment',
+          advanced: [{ width: { ideal: 1280 }, height: { ideal: 720 } }]
+        })
+        console.log('扫描器配置:', {
+          fps: 10,
+          qrbox: { width: 280, height: 180 },
+          aspectRatio: 1.777
+        })
 
         // 启动扫描器
         await scanner.start(
@@ -89,11 +110,18 @@ export function ISBNScanner({ onScan, isProcessing = false }: ISBNScannerProps) 
           }
         )
 
-        console.log('扫描器启动成功')
+        console.log('✅ 扫描器启动成功！')
         setIsScanning(true)
         setError(null)
       } catch (err) {
-        console.error('扫描器初始化失败:', err)
+        console.error('❌ 扫描器初始化失败!')
+        console.error('错误对象:', err)
+        console.error('错误类型:', err instanceof Error ? err.constructor.name : typeof err)
+
+        if (err instanceof Error) {
+          console.error('错误消息:', err.message)
+          console.error('错误堆栈:', err.stack)
+        }
 
         let errorMessage = '无法启动摄像头'
 
@@ -101,12 +129,16 @@ export function ISBNScanner({ onScan, isProcessing = false }: ISBNScannerProps) 
           // 根据错误类型提供更详细的提示
           if (err.message.includes('Permission') || err.message.includes('NotAllowedError')) {
             errorMessage = '📷 摄像头权限被拒绝，请在浏览器设置中允许访问摄像头'
+            console.error('权限错误: 用户拒绝了摄像头权限')
           } else if (err.message.includes('NotFoundError')) {
             errorMessage = '📷 未检测到摄像头设备'
+            console.error('设备错误: 找不到摄像头设备')
           } else if (err.message.includes('NotReadableError')) {
             errorMessage = '📷 摄像头正在被其他应用使用'
+            console.error('冲突错误: 摄像头被占用')
           } else {
             errorMessage = `📷 摄像头启动失败: ${err.message}`
+            console.error('未知错误:', err.message)
           }
         }
 

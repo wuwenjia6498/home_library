@@ -46,6 +46,18 @@ export default function ScanPage() {
   const [showResumeDialog, setShowResumeDialog] = useState(false)
   const [hasCheckedResume, setHasCheckedResume] = useState(false)
 
+  // 移动端调试工具 - 临时启用以便在手机上调试
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      import('eruda').then((eruda) => {
+        eruda.default.init()
+        console.log('📱 Eruda 调试工具已加载，点击右下角绿色按钮查看控制台')
+      }).catch((err) => {
+        console.log('Eruda 加载失败:', err)
+      })
+    }
+  }, [])
+
   // 页面加载时检查是否有未完成的任务
   useEffect(() => {
     if (!hasCheckedResume && queue.length > 0) {
