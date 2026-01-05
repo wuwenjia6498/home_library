@@ -72,33 +72,57 @@
 /* ISBN 扫描器激光线动画 */
 @keyframes scan-line {
   0% {
-    top: 0;
+    top: 10px;
     opacity: 0.8;
   }
   50% {
-    top: calc(100% - 3px);
+    top: calc(100% - 13px);
     opacity: 1;
   }
   100% {
-    top: 0;
+    top: 10px;
     opacity: 0.8;
   }
 }
 
 .scan-line {
   position: absolute;
-  left: 0;
-  right: 0;
+  left: 8px;
+  right: 8px;
   height: 3px;
   background: linear-gradient(
-    to bottom,
-    transparent,
-    rgba(255, 0, 0, 0.9),
-    transparent
+    90deg,
+    transparent 0%,
+    rgba(255, 50, 50, 0.3) 10%,
+    rgba(255, 50, 50, 1) 50%,
+    rgba(255, 50, 50, 0.3) 90%,
+    transparent 100%
   );
-  box-shadow: 0 0 15px rgba(255, 0, 0, 0.8),
-              0 0 30px rgba(255, 0, 0, 0.6);
-  animation: scan-line 2s ease-in-out infinite;
-  z-index: 10;
+  box-shadow: 
+    0 0 8px rgba(255, 50, 50, 0.9),
+    0 0 20px rgba(255, 50, 50, 0.6),
+    0 0 40px rgba(255, 50, 50, 0.3);
+  animation: scan-line 1.8s ease-in-out infinite;
+  z-index: 30;
   pointer-events: none;
+  border-radius: 2px;
+}
+
+/* 隐藏 html5-qrcode 自带的扫描边框 */
+#qr-reader__scan_region {
+  border: none !important;
+  background: transparent !important;
+}
+
+#qr-reader__scan_region video {
+  border-radius: 8px;
+}
+
+/* 隐藏 html5-qrcode 自带的 UI 元素 */
+#qr-reader__dashboard_section {
+  display: none !important;
+}
+
+#qr-reader__dashboard_section_swaplink {
+  display: none !important;
 }
