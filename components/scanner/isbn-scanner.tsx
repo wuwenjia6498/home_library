@@ -19,7 +19,6 @@ export function ISBNScanner({ onScan, isProcessing = false }: ISBNScannerProps) 
   const [isScanning, setIsScanning] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isHttps, setIsHttps] = useState(true)
-  const [showOverlay, setShowOverlay] = useState(false)
   const lastScannedRef = useRef<string>('')
   const lastScanTimeRef = useRef<number>(0)
   const isInitializingRef = useRef(false)
@@ -93,11 +92,6 @@ export function ISBNScanner({ onScan, isProcessing = false }: ISBNScannerProps) 
         console.log('扫描器启动成功')
         setIsScanning(true)
         setError(null)
-
-        // 延迟显示视觉叠加层，确保摄像头完全初始化
-        setTimeout(() => {
-          setShowOverlay(true)
-        }, 1000)
       } catch (err) {
         console.error('扫描器初始化失败:', err)
 
@@ -139,7 +133,6 @@ export function ISBNScanner({ onScan, isProcessing = false }: ISBNScannerProps) 
             console.log('扫描器已停止')
             scanner.clear()
             setIsScanning(false)
-            setShowOverlay(false)
           })
           .catch((err) => {
             console.error('停止扫描器失败:', err)
@@ -202,43 +195,6 @@ export function ISBNScanner({ onScan, isProcessing = false }: ISBNScannerProps) 
               id="qr-reader"
               className="rounded-lg overflow-hidden"
             />
-
-            {/* 视觉引导叠加层 - 延迟显示，避免干扰初始化 */}
-            {showOverlay && (
-              <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 10 }}>
-                {/* 半透明遮罩 - 突出扫描区域 */}
-                <div className="absolute inset-0 bg-black/40" />
-
-                {/* 扫描框 - 280x180，居中显示 */}
-                <div
-                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-                  style={{ width: '280px', height: '180px' }}
-                >
-                  {/* 透明中心区域 */}
-                  <div className="absolute inset-0 border-2 border-white/30 bg-transparent" />
-
-                  {/* 四个 L 型角标 */}
-                  {/* 左上角 */}
-                  <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-red-500" />
-                  {/* 右上角 */}
-                  <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-red-500" />
-                  {/* 左下角 */}
-                  <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-red-500" />
-                  {/* 右下角 */}
-                  <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-red-500" />
-
-                  {/* 激光扫描线 */}
-                  <div className="scan-line" />
-
-                  {/* 扫描提示文字 */}
-                  <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 whitespace-nowrap">
-                    <div className="bg-black/60 text-white text-xs px-3 py-1 rounded-full">
-                      将条形码对准扫描框
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* 错误提示 */}
@@ -263,9 +219,6 @@ export function ISBNScanner({ onScan, isProcessing = false }: ISBNScannerProps) 
               <p>📷 摄像头已就绪，请对准图书背面的 ISBN 条形码</p>
               <p className="mt-1 text-xs text-gray-500">
                 扫描成功后手机会震动反馈 📳
-              </p>
-              <p className="mt-1 text-xs text-gray-400">
-                提示：将条形码对准红色扫描框
               </p>
             </div>
           )}
