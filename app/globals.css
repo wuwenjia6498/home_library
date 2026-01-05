@@ -108,21 +108,73 @@
   border-radius: 2px;
 }
 
-/* 隐藏 html5-qrcode 自带的扫描边框 */
-#qr-reader__scan_region {
+/* Html5QrcodeScanner 样式美化 */
+#qr-reader {
   border: none !important;
-  background: transparent !important;
+  padding: 0 !important;
+}
+
+#qr-reader__scan_region {
+  border-radius: 12px !important;
+  overflow: hidden !important;
 }
 
 #qr-reader__scan_region video {
-  border-radius: 8px;
+  border-radius: 12px !important;
 }
 
-/* 隐藏 html5-qrcode 自带的 UI 元素 */
+/* 扫描区域边框 */
+#qr-reader__scan_region > img {
+  opacity: 0.8;
+}
+
+/* 控制面板样式 */
 #qr-reader__dashboard_section {
+  padding: 12px !important;
+  background: #f9fafb !important;
+  border-radius: 8px !important;
+  margin-top: 8px !important;
+}
+
+#qr-reader__dashboard_section_csr button {
+  background: #10b981 !important;
+  color: white !important;
+  border: none !important;
+  padding: 10px 20px !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  cursor: pointer !important;
+  margin: 4px !important;
+}
+
+#qr-reader__dashboard_section_csr button:hover {
+  background: #059669 !important;
+}
+
+/* 摄像头选择下拉框 */
+#qr-reader__dashboard_section select {
+  padding: 8px 12px !important;
+  border-radius: 6px !important;
+  border: 1px solid #d1d5db !important;
+  font-size: 14px !important;
+  margin: 4px !important;
+}
+
+/* 隐藏文件上传相关元素 */
+#qr-reader__dashboard_section_fsr {
   display: none !important;
 }
 
+/* 状态文字 */
+#qr-reader__status_span {
+  color: #6b7280 !important;
+  font-size: 12px !important;
+}
+
+/* 切换摄像头链接 */
 #qr-reader__dashboard_section_swaplink {
-  display: none !important;
+  color: #3b82f6 !important;
+  font-size: 12px !important;
+  margin-top: 8px !important;
+  display: inline-block !important;
 }
