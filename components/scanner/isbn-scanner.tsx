@@ -6,7 +6,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react'
-import { Html5Qrcode } from 'html5-qrcode'
+import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode'
 
 interface ISBNScannerProps {
   onScan: (isbn: string) => void
@@ -65,11 +65,24 @@ export function ISBNScanner({ onScan, isProcessing = false }: ISBNScannerProps) 
 
         // 启动扫描器
         await scanner.start(
-          { facingMode: 'environment' }, // 使用后置摄像头
+          {
+            facingMode: 'environment', // 使用后置摄像头
+            advanced: [
+              {
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+              }
+            ]
+          },
           {
             fps: 10, // 每秒扫描 10 帧
-            qrbox: { width: 250, height: 250 }, // 扫描框大小
-            aspectRatio: 1.0,
+            qrbox: { width: 280, height: 180 }, // 扫描框大小（长方形适合条形码）
+            aspectRatio: 1.777, // 16:9 适合高分辨率
+            // 强制使用 EAN 格式（ISBN 条形码格式）
+            formatsToSupport: [
+              Html5QrcodeSupportedFormats.EAN_13,
+              Html5QrcodeSupportedFormats.EAN_8,
+            ],
           },
           (decodedText) => {
             // 成功扫描回调
@@ -134,27 +147,34 @@ export function ISBNScanner({ onScan, isProcessing = false }: ISBNScannerProps) 
   }, [isMounted, isHttps])
 
   const handleScanSuccess = (decodedText: string) => {
+    console.log('扫描到条形码:', decodedText)
+
     // 验证 ISBN 格式（10 位或 13 位数字）
     const isbn = decodedText.replace(/[^0-9]/g, '')
 
     if (isbn.length !== 10 && isbn.length !== 13) {
-      console.log('无效的 ISBN 格式:', decodedText)
+      console.log('无效的 ISBN 格式:', decodedText, '- 清理后:', isbn)
       return
     }
 
     // 防止重复扫描（同一个 ISBN 在 2 秒内只处理一次）
     const now = Date.now()
     if (isbn === lastScannedRef.current && now - lastScanTimeRef.current < 2000) {
+      console.log('重复扫描，跳过:', isbn)
       return
     }
 
     lastScannedRef.current = isbn
     lastScanTimeRef.current = now
 
+    console.log('✅ 识别成功! ISBN:', isbn)
+
     // 触发震动反馈（仅在客户端）
     if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
       try {
+        // 短震动表示成功
         navigator.vibrate(200)
+        console.log('📳 震动反馈已触发')
       } catch (e) {
         console.log('震动功能不可用:', e)
       }
@@ -174,10 +194,49 @@ export function ISBNScanner({ onScan, isProcessing = false }: ISBNScannerProps) 
       ) : (
         <>
           {/* 扫描器容器 */}
-          <div
-            id="qr-reader"
-            className="rounded-lg overflow-hidden"
-          />
+          <div className="relative">
+            <div
+              id="qr-reader"
+              className="rounded-lg overflow-hidden"
+            />
+
+            {/* 激光线动画 - 只在扫描中显示 */}
+            {isScanning && !error && (
+              <style jsx>{`
+                @keyframes scan-line {
+                  0% {
+                    top: 0;
+                  }
+                  50% {
+                    top: calc(100% - 3px);
+                  }
+                  100% {
+                    top: 0;
+                  }
+                }
+
+                .scan-line {
+                  position: absolute;
+                  left: 0;
+                  right: 0;
+                  height: 3px;
+                  background: linear-gradient(
+                    to bottom,
+                    transparent,
+                    rgba(255, 0, 0, 0.8),
+                    transparent
+                  );
+                  box-shadow: 0 0 10px rgba(255, 0, 0, 0.6);
+                  animation: scan-line 2s ease-in-out infinite;
+                  z-index: 10;
+                  pointer-events: none;
+                }
+              `}</style>
+            )}
+            {isScanning && !error && (
+              <div className="scan-line" />
+            )}
+          </div>
 
           {/* 错误提示 */}
           {error && (
@@ -200,7 +259,10 @@ export function ISBNScanner({ onScan, isProcessing = false }: ISBNScannerProps) 
             <div className="mt-4 text-center text-sm text-gray-600">
               <p>📷 摄像头已就绪，请对准图书背面的 ISBN 条形码</p>
               <p className="mt-1 text-xs text-gray-500">
-                扫描成功后手机会震动反馈
+                扫描成功后手机会震动反馈 📳
+              </p>
+              <p className="mt-1 text-xs text-gray-400">
+                提示：将条形码对准红色扫描框
               </p>
             </div>
           )}
